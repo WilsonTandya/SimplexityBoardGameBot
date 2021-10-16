@@ -71,28 +71,33 @@ class LocalSearch:
         return max_streak
     
     def prob(self, deltaE : int, thinking_time : float) -> float :
-        return math.exp(deltaE/thinking_time)
+        try:
+            return math.exp(deltaE/thinking_time)
+        except OverflowError:
+            return float('inf')
+        
 
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.start_time = time()
         self.thinking_time = thinking_time 
         choosen_col, choosen_shape = (None, None)
-        print("-------------------------State Awal----------------------------------")
-        print(state.board)
-        print("Nilai evaluasi : " + str(self.evaluateState(state.board)))
         while self.thinking_time > 0 :
             next_col, next_shape = self.randomNextMove(state)
             succ_board = self.randomNextSucc(state, n_player, next_shape, next_col)
-            deltaE = self.evaluateState(succ_board) > self.evaluateState(state.board)
+            deltaE = self.evaluateState(succ_board) - self.evaluateState(state.board)
             if(deltaE > 0) :
                 choosen_col, choosen_shape = next_col, next_shape
             else :
+                # print("-------------------------State Akhir----------------------------------")
+                # print(deltaE)
+                # print(choosen_col, choosen_shape)
+                # print(next_col, next_shape)
+                # print(self.prob(deltaE, self.thinking_time))
                 if(self.prob(deltaE, self.thinking_time) > 0.5) :
                     choosen_col, choosen_shape = next_col, next_shape
-            print("-------------------------State Akhir----------------------------------")
-            print(succ_board)
-            print("Nilai evaluasi : " + str(self.evaluateState(succ_board)))
             self.thinking_time -= (time() - self.start_time)
+            # if(deltaE <= 0) :
+            #     print(choosen_col, choosen_shape)
         best_movement = choosen_col, choosen_shape
         return best_movement
 
