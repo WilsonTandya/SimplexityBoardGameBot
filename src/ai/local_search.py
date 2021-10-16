@@ -1,6 +1,7 @@
 import random
 from time import time
 import copy
+import math
 from src.constant import ShapeConstant, GameConstant
 from src.model import State,Board
 from src.utility import place, is_out
@@ -12,11 +13,14 @@ class LocalSearch:
     def __init__(self):
         pass
 
-    def randomNextSucc(self, state: State, n_player: int) :
+    def randomNextMove(self, state: State) -> Tuple[str,str] :
+        choosen_col, choosen_shape = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
+        while is_out(state.board, 0, choosen_col) and choosen_shape in [ShapeConstant.CROSS, ShapeConstant.CIRCLE] :
+            choosen_col, choosen_shape = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
+        return choosen_col, choosen_shape
+
+    def randomNextSucc(self, state: State, n_player: int, choosen_shape, choosen_col) :
         copy_state = copy.deepcopy(state)
-        choosen_col, choosen_shape = (random.randint(0, copy_state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
-        while is_out(copy_state.board, 0, choosen_col) and choosen_shape in [ShapeConstant.CROSS, ShapeConstant.CIRCLE] :
-            choosen_col, choosen_shape = (random.randint(0, copy_state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
         placement = place(copy_state, n_player, choosen_shape, choosen_col)
         return copy_state.board
     
@@ -65,17 +69,36 @@ class LocalSearch:
                 if mark > max_streak :
                     max_streak = mark
         return max_streak
+    
+    def prob(self, deltaE : int, thinking_time : float) -> float :
+        return math.exp(deltaE/thinking_time)
 
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
-        self.thinking_time = time() + thinking_time
-        for i in range(3) :
-            succ_board = self.randomNextSucc(state, n_player)
-            print("-------------------------State Awal----------------------------------")
-            print(state.board)
-            print("Nilai evaluasi : " + str(self.evaluateState(state.board)))
+        self.start_time = time()
+        self.thinking_time = thinking_time 
+        choosen_col, choosen_shape = (None, None)
+        print("-------------------------State Awal----------------------------------")
+        print(state.board)
+        print("Nilai evaluasi : " + str(self.evaluateState(state.board)))
+        while self.thinking_time > 0 :
+            next_col, next_shape = self.randomNextMove(state)
+            succ_board = self.randomNextSucc(state, n_player, next_shape, next_col)
+            deltaE = self.evaluateState(succ_board) > self.evaluateState(state.board)
+            if(deltaE > 0) :
+                choosen_col, choosen_shape = next_col, next_shape
+            else :
+                if(self.prob(deltaE, self.thinking_time) > 0.5) :
+                    choosen_col, choosen_shape = next_col, next_shape
             print("-------------------------State Akhir----------------------------------")
             print(succ_board)
-            print("Nilai evaluasi :" + str(self.evaluateState(succ_board)))
-
-        best_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
+            print("Nilai evaluasi : " + str(self.evaluateState(succ_board)))
+            self.thinking_time -= (time() - self.start_time)
+        best_movement = choosen_col, choosen_shape
         return best_movement
+
+# print("-------------------------State Awal----------------------------------")
+# print(state.board)
+# print("Nilai evaluasi : " + str(self.evaluateState(state.board)))
+# print("-------------------------State Akhir----------------------------------")
+# print(succ_board)
+# print("Nilai evaluasi : " + str(self.evaluateState(succ_board)))
