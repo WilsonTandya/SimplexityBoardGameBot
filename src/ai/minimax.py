@@ -58,9 +58,9 @@ class Minimax:
 
     def horizontal(state: State, n_player: int, shape: str, col: str) -> int:
         total_score = 0
-        state = deepcopy(state)
-        board = state.board
-        is_placed = place(state,n_player,shape,col) # returns -1 if invalid
+        copy_state = deepcopy(state)
+        board = copy_state.board
+        is_placed = place(copy_state,n_player,shape,col) # returns -1 if invalid
 
         score_1 = score_2 = score_3 = score_4 = 0
         blank = ShapeConstant.BLANK
@@ -70,16 +70,24 @@ class Minimax:
                 for j in range(0, board.col):
                     player_shape = shape
                     player_color = GameConstant.PLAYER_COLOR[n_player]
-                    shape_1 = board[i][j].shape
-                    shape_2 = board[i+1][j].shape
-                    shape_3 = board[i+2][j].shape
-                    shape_4 = board[i+3][j].shape
-                    color_1 = board[i][j].color
-                    color_2 = board[i+1][j].color
-                    color_3 = board[i+2][j].color
-                    color_4 = board[i+3][j].color
-
+                   
+                    # shape_1 = board[i][j].shape
+                    # shape_2 = board[i+1][j].shape
+                    # shape_3 = board[i+2][j].shape
+                    # shape_4 = board[i+3][j].shape
+                    # color_1 = board[i][j].color
+                    # color_2 = board[i+1][j].color
+                    # color_3 = board[i+2][j].color
+                    # color_4 = board[i+3][j].color
                     try: 
+                        shape_1 = board.__getitem__([i,j]).shape
+                        shape_2 = board.__getitem__([i,j+1]).shape
+                        shape_3 = board.__getitem__([i,j+2]).shape
+                        shape_4 = board.__getitem__([i,j+3]).shape
+                        color_1 = board.__getitem__([i,j]).color
+                        color_2 = board.__getitem__([i,j+1]).color
+                        color_3 = board.__getitem__([i,j+2]).color
+                        color_4 = board.__getitem__([i,j+3]).color
                         # Garis dengan 1 bidak berdasarkan warna atau shape pemain: +1
                         # 1. X___
                         if (shape_2 == shape_3 == shape_4 == blank) and ((shape_1 == player_shape) or (color_1 == player_color)):
@@ -134,19 +142,7 @@ class Minimax:
                         if (shape_1 == shape_4 == blank) and (shape_2 == shape_3 == player_shape):
                             score_2 += 10
                         
-                        # Garis dengan 3 bidak berdasarkan warna pemain: +30
-                        # 1. XXX_
-                        if (color_1 == color_2 == color_3 == player_color) and (shape_4 == blank):
-                            score_3 += 30
-                        # 2. XX_X 
-                        if (color_1 == color_2 == color_4 == player_color) and (shape_3 == blank):
-                            score_3 += 30
-                        # 3. X_XX
-                        if (color_1 == color_3 == color_4 == player_color) and (shape_2 == blank):
-                            score_3 += 30
-                        # 4. _XXX
-                        if (color_3 == color_2 == color_4 == player_color) and (shape_1 == blank):
-                            score_3 += 30
+
 
                         # Garis dengan 3 bidak berdasarkan shape pemain: +50
                         # 1. XXX_
@@ -161,17 +157,30 @@ class Minimax:
                         # 4. _XXX
                         if (shape_3 == shape_2 == shape_4 == player_shape) and (shape_1 == blank):
                             score_3 += 50
-
-                        # Garis dengan 4 bidak berdasarkan warna pemain: +800
-                        # Note: gausah dicek kanan kiri
-                        if (color_1 == color_2 == color_3 == color_4 == player_color):
-                            score_4 += 800
+                        # Garis dengan 3 bidak berdasarkan warna pemain: +30
+                        # 1. XXX_
+                        if (color_1 == color_2 == color_3 == player_color) and (shape_4 == blank):
+                            score_3 += 30
+                        # 2. XX_X 
+                        if (color_1 == color_2 == color_4 == player_color) and (shape_3 == blank):
+                            score_3 += 30
+                        # 3. X_XX
+                        if (color_1 == color_3 == color_4 == player_color) and (shape_2 == blank):
+                            score_3 += 30
+                        # 4. _XXX
+                        if (color_3 == color_2 == color_4 == player_color) and (shape_1 == blank):
+                            score_3 += 30
+                       
                         
                         # Garis dengan 4 bidak berdasarkan shape pemain: +1000
                         # Note: gausah dicek kanan kiri
                         if (shape_1 == shape_2 == shape_3 == shape_4 == player_shape):
                             score_4 += 1000
-
+                        # Garis dengan 4 bidak berdasarkan warna pemain: +800
+                        # Note: gausah dicek kanan kiri
+                        if (color_1 == color_2 == color_3 == color_4 == player_color):
+                            score_4 += 800
+                        # 1000+800+30+50+5+1
                     except IndexError:
                         pass
 
@@ -201,16 +210,23 @@ class Minimax:
                 for j in range(0, board.col):
                     player_shape = shape
                     player_color = GameConstant.PLAYER_COLOR[n_player]
-                    shape_1 = board[i][j].shape
-                    shape_2 = board[i+1][j+1].shape
-                    shape_3 = board[i+2][j+2].shape
-                    shape_4 = board[i+3][j+3].shape
-                    color_1 = board[i][j].color
-                    color_2 = board[i+1][j+1].color
-                    color_3 = board[i+2][j+2].color
-                    color_4 = board[i+3][j+3].color
-
+                    # shape_1 = board[i][j].shape
+                    # shape_2 = board[i+1][j+1].shape
+                    # shape_3 = board[i+2][j+2].shape
+                    # shape_4 = board[i+3][j+3].shape
+                    # color_1 = board[i][j].color
+                    # color_2 = board[i+1][j+1].color
+                    # color_3 = board[i+2][j+2].color
+                    # color_4 = board[i+3][j+3].color
                     try: 
+                        shape_1 = board.__getitem__([i,j]).shape
+                        shape_2 = board.__getitem__([i+1,j+1]).shape
+                        shape_3 = board.__getitem__([i+2,j+2]).shape
+                        shape_4 = board.__getitem__([i+3,j+3]).shape
+                        color_1 = board.__getitem__([i,j]).color
+                        color_2 = board.__getitem__([i+1,j+1]).color
+                        color_3 = board.__getitem__([i+2,j+2]).color
+                        color_4 = board.__getitem__([i+3,j+3]).color
                         # Garis dengan 1 bidak berdasarkan warna atau shape pemain: +1
                         is_feasible = not j+3 > board.row
                         if (is_feasible):
@@ -304,9 +320,9 @@ class Minimax:
                             # Note: gausah dicek kanan kiri
                             if  (shape_1 == shape_2 == shape_3 == shape_4 == player_shape):
                                 score_4 += 1000
-
                     except IndexError:
                         pass
+        print('score 1: '+str(score_1) +'\nscore 2:'+str(score_2)+'\nscore 3:'+str(score_3) +'\nscore 4:'+str(score_4))
 
         total_score = score_1 + score_2 + score_3 + score_4
         return total_score    
@@ -338,8 +354,26 @@ test_players = [
             ),
         ]
 test_state = State(test_board,test_players,1)
-place(test_state,1,"X",4)
-place(test_state,2,"O",3)
-minimax = Minimax()
-score = minimax.horizontal(1,"X",4)
+# place(test_state,0,"X",4)
+# place(test_state,1,"O",3)
+# place(test_state,0,"X",4)
+# place(test_state,0,"X",4)
+# place(test_state,0,"X",4)
+place(test_state,0,"X",0)
+place(test_state,0,"X",1)
+place(test_state,0,"X",2)
+# place(test_state,"X",3)
+
+# minimax = Minimax()
+
+# score = minimax.horizontal(1,"X","4")
+# print(score)
+# test_board.set_piece(5,3,'X')
+# print(test_board)
+# minimax = Minimax()
+print(test_state.board)
+score = Minimax.horizontal(test_state,0,'X',3)
+print(test_state.board)
 print(score)
+# score = minimax.horizontal(0,'X',3)
+# print(score)
