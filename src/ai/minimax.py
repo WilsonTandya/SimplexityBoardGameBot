@@ -189,12 +189,70 @@ class Minimax:
     
     
     def vertical(state: State, n_player: int, shape: str, col: str) -> int:
-        score_1 = 0
-        score_2 = 0
-        score_3 = 0
-        score_4 = 0
         total_score = 0
+        copy_state = deepcopy(state)
+        board = copy_state.board
+        is_placed = place(copy_state,n_player,shape,col) # returns -1 if invalid
+
+        score_1 = score_2 = score_3 = score_4 = 0
+        blank = ShapeConstant.BLANK
+
+        if (is_placed != 1):
+            for j in range (board.col):
+                for i in range (board.row-1, -1, -1):
+                    player_shape = shape
+                    player_color = GameConstant.PLAYER_COLOR[n_player]
+
+                    try:
+                        shape_1 = board.__getitem__([i,j]).shape
+                        shape_2 = board.__getitem__([i-1,j]).shape
+                        shape_3 = board.__getitem__([i-2,j]).shape
+                        shape_4 = board.__getitem__([i-3,j]).shape
+                        color_1 = board.__getitem__([i,j]).color
+                        color_2 = board.__getitem__([i-1,j]).color
+                        color_3 = board.__getitem__([i-2,j]).color
+                        color_4 = board.__getitem__([i-3,j]).color
+
+                        # Pada ilustrasi di bawah, kiri = bawah, kanan = atas
+                        # Garis dengan 1 bidak berdasarkan warna atau shape pemain: +1
+                        # X___
+                        if ((color_1 == player_color) or (shape_1 == player_shape)) and (shape_2 == shape_3 == shape_4 == blank):
+                            score_1 += 1
+                            
+                        # Garis dengan 2 bidak berdasarkan warna pemain: +5
+                        # XX__
+                        if (color_1 == color_2 == player_color) and (shape_3 == shape_4 == blank):
+                            score_2 += 5
+
+                        # Garis dengan 2 bidak berdasarkan shape pemain: +10
+                        # XX__
+                        if (shape_1 == shape_2 == player_shape) and (shape_3 == shape_4 == blank):
+                            score_2 += 10
+
+                        # Garis dengan 3 bidak berdasarkan warna pemain: +30
+                        # XXX_
+                        if (color_1 == color_2 == color_3 == player_color) and (shape_4 == blank):
+                            score_3 += 30
+
+                        # Garis dengan 3 bidak berdasarkan shape pemain: +50
+                        # XXX_
+                        if (shape_1 == shape_2 == shape_3 == player_shape) and (shape_4 == blank):
+                            score_3 += 50
+
+                        # Garis dengan 4 bidak berdasarkan warna pemain: +800
+                        if (color_1 == color_2 == color_3 == color_4 == player_color):
+                            score_4 += 800
+
+                        # Garis dengan 4 bidak berdasarkan shape pemain: +1000
+                        if (shape_1 == shape_2 == shape_3 == shape_4 == player_shape):
+                            score_4 += 1000
+
+                    except IndexError:
+                        pass
+
+        total_score = score_1 + score_2 + score_3 + score_4
         return total_score
+
 
     def positive_diagonal(state: State, n_player: int, shape: str, col: str) -> int:
         total_score = 0
@@ -362,6 +420,7 @@ test_state = State(test_board,test_players,1)
 place(test_state,0,"X",0)
 place(test_state,0,"X",1)
 place(test_state,0,"X",2)
+place(test_state,0,"X",2)
 # place(test_state,"X",3)
 
 # minimax = Minimax()
@@ -372,7 +431,7 @@ place(test_state,0,"X",2)
 # print(test_board)
 # minimax = Minimax()
 print(test_state.board)
-score = Minimax.horizontal(test_state,0,'X',3)
+score = Minimax.vertical(test_state,0,'O',2)
 print(test_state.board)
 print(score)
 # score = minimax.horizontal(0,'X',3)
