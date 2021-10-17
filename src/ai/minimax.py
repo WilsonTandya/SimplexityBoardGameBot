@@ -360,96 +360,131 @@ class Minimax:
                 for j in range(0, board.col):
                     try: 
                         shape_1 = board.__getitem__([i,j]).shape
-                        shape_2 = board.__getitem__([i-1,j-1]).shape
-                        shape_3 = board.__getitem__([i-2,j-2]).shape
-                        shape_4 = board.__getitem__([i-3,j-3]).shape
+                        shape_2 = board.__getitem__([i+1,j-1]).shape
+                        shape_3 = board.__getitem__([i+2,j-2]).shape
+                        shape_4 = board.__getitem__([i+3,j-3]).shape
                         color_1 = board.__getitem__([i,j]).color
-                        color_2 = board.__getitem__([i-1,j-1]).color
-                        color_3 = board.__getitem__([i-2,j-2]).color
-                        color_4 = board.__getitem__([i-3,j-3]).color
-                        is_feasible = not j+3 > board.row
+                        color_2 = board.__getitem__([i+1,j-1]).color
+                        color_3 = board.__getitem__([i+2,j-2]).color
+                        color_4 = board.__getitem__([i+3,j-3]).color
+                        # negative diagonal
+                        # shape_1 = board.__getitem__([i,j]).shape
+                        # shape_2 = board.__getitem__([i+1,j+1]).shape
+                        # shape_3 = board.__getitem__([i+2,j+2]).shape
+                        # shape_4 = board.__getitem__([i+3,j+3]).shape
+                        # color_1 = board.__getitem__([i,j]).color
+                        # color_2 = board.__getitem__([i+1,j+1]).color
+                        # color_3 = board.__getitem__([i+2,j+2]).color
+                        # color_4 = board.__getitem__([i+3,j+3]).color
+                        # is_feasible = True
+                        is_feasible = not j-3 < 0 and not i+3 > board.row
+                        # is_feasible = (not j-3 < 0) and (not i+3 > board.row )
                         if (is_feasible):
                             
                             # Garis dengan 1 bidak berdasarkan warna atau shape pemain: +1
                             # 1. X___
                             if (shape_2 == shape_3 == shape_4 == blank) and ((shape_1 == player_shape) or (color_1 == player_color)):
                                 score_1 += 1
+                                print(i,j)
                             # 2. _X__
                             if (shape_1 == shape_3 == shape_4 == blank) and ((shape_2 == player_shape) or (color_2 == player_color)):
                                 score_1 += 1
+                                print(i,j)
                             # 3. __X_
                             if (shape_1 == shape_2 == shape_4 == blank) and ((shape_3 == player_shape) or (color_3 == player_color)):
                                 score_1 += 1
+                                print(i,j)
+                         
                             # 4. ___X
                             if (shape_1 == shape_2 == shape_3 == blank) and ((shape_4 == player_shape) or (color_4 == player_color)):
                                 score_1 += 1
+                                print(i,j)
 
                             # Garis dengan 2 bidak berdasarkan warna pemain: +5
                             # 1. XX__
                             if (color_1 == color_2 == player_color) and (shape_3 == shape_4 == blank):
                                 score_2 += 5
+                                print(i,j)
                             # 2. __XX
                             if (color_3 == color_4 == player_color) and (shape_1 == shape_2 == blank):
                                 score_2 += 5
+                                print(i,j)
                             # 3. _X_X
                             if (color_2 == color_4 == player_color) and (shape_1 == shape_3 == blank):
                                 score_2 += 5
+                                print(i,j)
                             # 4. X_X_
                             if (shape_2 == shape_4 == blank) and (color_1 == color_3 == player_color):
                                 score_2 += 5
+                                print(i,j)
                             # 5. X__X
                             if (color_1 == color_4 == player_color) and (shape_2 == shape_3 == blank):
                                 score_2 += 5
+                                print(i,j)
                             # 6. _XX_
                             if (shape_1 == shape_4 == blank) and (color_2 == color_3 == player_color):
                                 score_2 += 5
+                                print(i,j)
 
                             # Garis dengan 2 bidak berdasarkan shape pemain: +10
                             # 1. XX__
                             if (shape_1 == shape_2 == player_shape) and (shape_3 == shape_4 == blank):
                                 score_2 += 10
+                                print(i,j)
                             # 2. __XX
                             if (shape_3 == shape_4 == player_shape) and (shape_1 == shape_2 == blank):
                                 score_2 += 10
+                                print(i,j)
                             # 3. _X_X
                             if (shape_2 == shape_4 == player_shape) and (shape_1 == shape_3 == blank):
                                 score_2 += 10
+                                print(i,j)
                             # 4. X_X_
                             if (shape_2 == shape_4 == blank) and (shape_1 == shape_3 == player_shape):
                                 score_2 += 10
+                                print(i,j)
                             # 5. X__X
                             if (shape_1 == shape_4 == player_shape) and (shape_2 == shape_3 == blank):
                                 score_2 += 10
+                                print(i,j)
                             # 6. _XX_
                             if (shape_1 == shape_4 == blank) and (shape_2 == shape_3 == player_shape):
                                 score_2 += 10
-
+                                print(i,j)
                             # Garis dengan 3 bidak berdasarkan shape pemain: +50
                             # 1. XXX_
                             if (shape_1 == shape_2 == shape_3 == player_shape) and (shape_4 == blank):
                                 score_3 += 50
+                                print(i,j)
                             # 2. XX_X 
                             if (shape_1 == shape_2 == shape_4 == player_shape) and (shape_3 == blank):
                                 score_3 += 50
+                                print(i,j)
                             # 3. X_XX
                             if (shape_1 == shape_3 == shape_4 == player_shape) and (shape_2 == blank):
                                 score_3 += 50
+                                print(i,j)
                             # 4. _XXX
                             if (shape_3 == shape_2 == shape_4 == player_shape) and (shape_1 == blank):
                                 score_3 += 50
+                                print(i,j)
                             # Garis dengan 3 bidak berdasarkan warna pemain: +30
                             # 1. XXX_
                             if (color_1 == color_2 == color_3 == player_color) and (shape_4 == blank):
-                                score_3 -= 500
+                                score_3 += 30
+                                print(i,j)                               
                             # 2. XX_X 
                             if (color_1 == color_2 == color_4 == player_color) and (shape_3 == blank):
-                                score_3 -= 500
+                                score_3 += 30
+                                print(i,j)
                             # 3. X_XX
                             if (color_1 == color_3 == color_4 == player_color) and (shape_2 == blank):
-                                score_3 -= 500
+                                score_3 += 30
+                                print(i,j)
                             # 4. _XXX
                             if (color_3 == color_2 == color_4 == player_color) and (shape_1 == blank):
-                                score_3 -= 500
+                                score_3 += 30
+                                print(i,j)
                         
                             # Garis dengan 4 bidak berdasarkan shape pemain: +1000
                             if (shape_1 == shape_2 == shape_3 == shape_4 == player_shape):
@@ -535,8 +570,9 @@ class Minimax:
                                 score_4 -= 1000
                     except IndexError:
                         pass
-        # print('score 1: '+str(score_1) +'\nscore 2:'+str(score_2)+'\nscore 3:'+str(score_3) +'\nscore 4:'+str(score_4))
+        print('score 1: '+str(score_1) +'\nscore 2:'+str(score_2)+'\nscore 3:'+str(score_3) +'\nscore 4:'+str(score_4))
         total_score = score_1 + score_2 + score_3 + score_4
+        # total = 50+30+
         return total_score    
 
     def negative_diagonal(board: Board) -> int:
@@ -559,33 +595,36 @@ test_quota = [
 ]
 test_players = [
             Player(
-                ShapeConstant.CROSS, ColorConstant.RED, test_quota[0]
+                ShapeConstant.CIRCLE, ColorConstant.RED, test_quota[0]
             ),
             Player(
-                ShapeConstant.CIRCLE, ColorConstant.BLUE, test_quota[1]
+                ShapeConstant.CROSS, ColorConstant.BLUE, test_quota[1]
             ),
         ]
 test_state = State(test_board,test_players,1)
 
 
 # Test Vertical
-place(test_state,0,"X",0)
-place(test_state,0,"X",1)
-place(test_state,0,"X",2)
-place(test_state,0,"X",2)
-print("TEST VERTICAL")
-print(test_state.board)
-score = Minimax.vertical(test_state,0,'O',2)
-print(test_state.board)
-print(score)
+place(test_state,0,"O",0)
+place(test_state,0,"O",1)
+place(test_state,0,"O",2)
+place(test_state,0,"O",2)
+place(test_state,0,"O",1)
+place(test_state,0,"O",2)
+
+# print("TEST VERTICAL")
+# print(test_state.board)
+# score = Minimax.vertical(test_state,0,'O',2)
+# print(test_state.board)
+# print(score)
 
 # Test Positive Diagonal
 print("TEST POSITIVE DIAGONAL")
 print(test_state.board)
-score = Minimax.positive_diagonal(test_state,0,'O',2)
+score = Minimax.positive_diagonal(test_state,0,"X",2)   
 print(test_state.board)
 print(score)
-# Score = 13 karena: 10 + 1 + 1 + 1 
+# Score = 113 karena: 50+30+15+15+1+1+1 = 113
 
 # # Test Positive Diagonal
 # place(test_state,0,"X",0)
