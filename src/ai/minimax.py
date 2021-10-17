@@ -1,9 +1,12 @@
 import random
 from time import time
+import sys
+
+sys.path.append('../../')
 
 from src.utility import place
 from src.constant import ColorConstant, GameConstant, ShapeConstant
-from src.model import State, Player, Board, Piece
+from src.model import State, Player, Board
 
 # from ..constant import ColorConstant, GameConstant, ShapeConstant
 # from ..model import State,Player,Board,Piece
