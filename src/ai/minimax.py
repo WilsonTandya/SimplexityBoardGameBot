@@ -60,12 +60,13 @@ class Minimax:
     
     def get_total_score(state: State, n_player: int, shape: str, col: str) -> int:
         # TODO
+        horizontal = Minimax.horizontal(state,n_player,shape,col)
         vertical = Minimax.vertical(state,n_player,shape,col)
         positive_diagonal = Minimax.positive_diagonal(state,n_player,shape,col)
-        return vertical + positive_diagonal
+        negative_diagonal = Minimax.negative_diagonal(state,n_player,shape,col)
+        return horizontal + vertical + positive_diagonal + negative_diagonal
 
     def get_shape_color(n_player: int) -> Tuple[str,str,str,str]:
-        # TODO belom yakin bener
         if (n_player == 0):
             player_shape = GameConstant.PLAYER1_SHAPE
             player_color = GameConstant.PLAYER1_COLOR
@@ -287,12 +288,13 @@ class Minimax:
 
         score_1 = score_2 = score_3 = score_4 = 0
         blank = ShapeConstant.BLANK
+        player_shape, player_color, opponent_shape, opponent_color = Minimax.get_shape_color(n_player)
 
         if (is_placed != 1):
             for j in range (board.col):
                 for i in range (board.row-1, -1, -1):
-                    player_shape = shape
-                    player_color = GameConstant.PLAYER_COLOR[n_player]
+                    # player_shape = shape
+                    # player_color = GameConstant.PLAYER_COLOR[n_player]
 
                     try:
                         shape_1 = board.__getitem__([i,j]).shape
@@ -337,6 +339,35 @@ class Minimax:
                         # Garis dengan 4 bidak berdasarkan shape pemain: +1000
                         if (shape_1 == shape_2 == shape_3 == shape_4 == player_shape):
                             score_4 += 1000
+
+                        # CEK OPPONENT
+                        # Garis dengan 2 bidak berdasarkan warna lawan: -5
+                        # XX__
+                        if (color_1 == color_2 == opponent_color) and (shape_3 == shape_4 == blank):
+                            score_2 -= 5
+
+                        # Garis dengan 2 bidak berdasarkan shape lawan: -10
+                        # XX__
+                        if (shape_1 == shape_2 == opponent_shape) and (shape_3 == shape_4 == blank):
+                            score_2 -= 10
+
+                        # Garis dengan 3 bidak berdasarkan warna lawan: -30
+                        # XXX_
+                        if (color_1 == color_2 == color_3 == opponent_color) and (shape_4 == blank):
+                            score_3 -= 30
+
+                        # Garis dengan 3 bidak berdasarkan shape lawan: -50
+                        # XXX_
+                        if (shape_1 == shape_2 == shape_3 == opponent_shape) and (shape_4 == blank):
+                            score_3 -= 50
+
+                        # Garis dengan 4 bidak berdasarkan warna lawan: -800
+                        if (color_1 == color_2 == color_3 == color_4 == opponent_color):
+                            score_4 -= 800
+
+                        # Garis dengan 4 bidak berdasarkan shape lawan: -1000
+                        if (shape_1 == shape_2 == shape_3 == shape_4 == opponent_shape):
+                            score_4 -= 1000
 
                     except IndexError:
                         pass
@@ -583,9 +614,7 @@ class Minimax:
 
         score_1 = score_2 = score_3 = score_4 = 0
         blank = ShapeConstant.BLANK
-
-        player_shape = shape
-        player_color = GameConstant.PLAYER_COLOR[n_player]
+        player_shape, player_color, opponent_shape, opponent_color = Minimax.get_shape_color(n_player)
 
         if (is_placed != 1):
             for i in range (board.row):
@@ -692,9 +721,87 @@ class Minimax:
                             # Garis dengan 4 bidak berdasarkan shape pemain: +1000
                             if (shape_1 == shape_2 == shape_3 == shape_4 == player_shape):
                                 score_4 += 1000
+
+
+                            # CEK OPPONENT
+                            # Garis dengan 2 bidak berdasarkan warna lawan: -5
+                            # 1. __XX
+                            if (color_1 == color_2 == opponent_color) and (shape_3 == shape_4 == blank):
+                                score_2 -= 5
+                            # 2. _X_X
+                            if (color_1 == color_3 == opponent_color) and (shape_2 == shape_4 == blank):
+                                score_2 -= 5
+                            # 3. X__X
+                            if (color_1 == color_4 == opponent_color) and (shape_2 == shape_3 == blank):
+                                score_2 -= 5
+                            # 4. _XX_
+                            if (color_2 == color_3 == opponent_color) and (shape_1 == shape_4 == blank):
+                                score_2 -= 5
+                            # 5. X_X_
+                            if (color_2 == color_4 == opponent_color) and (shape_1 == shape_3 == blank):
+                                score_2 -= 5
+                            # 6. XX__
+                            if (color_3 == color_4 == opponent_color) and (shape_1 == shape_2 == blank):
+                                score_2 -= 5
+
+                            # Garis dengan 2 bidak berdasarkan shape lawan: -10
+                            # 1. __XX
+                            if (shape_1 == shape_2 == opponent_shape) and (shape_3 == shape_4 == blank):
+                                score_2 -= 10
+                            # 2. _X_X
+                            if (shape_1 == shape_3 == opponent_shape) and (shape_2 == shape_4 == blank):
+                                score_2 -= 10
+                            # 3. X__X
+                            if (shape_1 == shape_4 == opponent_shape) and (shape_2 == shape_3 == blank):
+                                score_2 -= 10
+                            # 4. _XX_
+                            if (shape_2 == shape_3 == opponent_shape) and (shape_1 == shape_4 == blank):
+                                score_2 -= 10
+                            # 5. X_X_
+                            if (shape_2 == shape_4 == opponent_shape) and (shape_1 == shape_3 == blank):
+                                score_2 -= 10
+                            # 6. XX__
+                            if (shape_3 == shape_4 == opponent_shape) and (shape_1 == shape_2 == blank):
+                                score_2 -= 10
+
+                            # Garis dengan 3 bidak berdasarkan warna lawan: -30
+                            # 1. _XXX
+                            if (color_1 == color_2 == color_3 == opponent_color) and (shape_4 == blank):
+                                score_3 -= 30
+                            # 2. X_XX
+                            if (color_1 == color_2 == color_4 == opponent_color) and (shape_3 == blank):
+                                score_3 -= 30
+                            # 3. XX_X
+                            if (color_1 == color_3 == color_4 == opponent_color) and (shape_2 == blank):
+                                score_3 -= 30
+                            # 4. XXX_
+                            if (color_2 == color_3 == color_4 == opponent_color) and (shape_1 == blank):
+                                score_3 -= 30
+
+                            # Garis dengan 3 bidak berdasarkan shape lawan: -50
+                            # 1. _XXX
+                            if (shape_1 == shape_2 == shape_3 == opponent_shape) and (shape_4 == blank):
+                                score_3 -= 50
+                            # 2. X_XX
+                            if (shape_1 == shape_2 == shape_4 == opponent_shape) and (shape_3 == blank):
+                                score_3 -= 50
+                            # 3. XX_X
+                            if (shape_1 == shape_3 == shape_4 == opponent_shape) and (shape_2 == blank):
+                                score_3 -= 50
+                            # 4. XXX_
+                            if (shape_2 == shape_3 == shape_4 == opponent_shape) and (shape_1 == blank):
+                                score_3 -= 50
+
+                            # Garis dengan 4 bidak berdasarkan warna lawan: -800
+                            if (color_1 == color_2 == color_3 == color_4 == opponent_color):
+                                score_4 -= 800
+
+                            # Garis dengan 4 bidak berdasarkan shape lawan: -1000
+                            if (shape_1 == shape_2 == shape_3 == shape_4 == opponent_shape):
+                                score_4 -= 1000
                     except IndexError:
                         pass
-        total_score = score_1 + score_2 + score_3 + score_4   
+        total_score = score_1 + score_2 + score_3 + score_4
         return total_score       
 
 # TEST
@@ -730,12 +837,14 @@ test_state = State(test_board,test_players,1)
 # place(test_state,0,"O",2)
 # place(test_state,0,"O",1)
 # place(test_state,0,"O",2)
+# place(test_state,1,"X",6)
+# place(test_state,1,"X",6)
 
-# # print("TEST VERTICAL")
-# # print(test_state.board)
-# # score = Minimax.vertical(test_state,0,'O',2)
-# # print(test_state.board)
-# # print(score)
+# print("TEST VERTICAL")
+# print(test_state.board)
+# score = Minimax.vertical(test_state,0,'O',2)
+# print(test_state.board)
+# print(score)
 
 # # Test Positive Diagonal
 # print("TEST POSITIVE DIAGONAL")
@@ -749,14 +858,20 @@ test_state = State(test_board,test_players,1)
 # place(test_state,0,"X",0)
 
 # Test Negative Diagonal
-place(test_state,1,"X",1)
-place(test_state,1,"X",1)
-place(test_state,1,"X",1)
-place(test_state,1,"X",2)
-place(test_state,1,"X",2)
-place(test_state,1,"X",3)
-place(test_state,0,"O",4)
+place(test_state,0,"O",1)
+place(test_state,0,"O",1)
+place(test_state,0,"O",1)
+place(test_state,0,"O",2)
+place(test_state,0,"O",2)
 place(test_state,0,"X",3)
+place(test_state,1,"X",4)
+place(test_state,1,"X",4)
+place(test_state,1,"X",5)
+place(test_state,1,"X",5)
+
+print("TEST NEGATIVE DIAGONAL")
 print(test_state.board)
-score = Minimax.negative_diagonal(test_state,0,"O",2)
-print(score)
+score_neg_diag = Minimax.negative_diagonal(test_state,0,"X",3)
+score_ver = Minimax.vertical(test_state,0,"X",3)
+score_tot = score_neg_diag + score_ver
+print(str(score_neg_diag) + "+" + str(score_ver) + "=" + str(score_tot))
