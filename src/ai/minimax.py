@@ -4,7 +4,7 @@ import sys
 
 sys.path.append('../../')
 
-from src.utility import place
+from src.utility import place, is_win, is_full
 from src.constant import ColorConstant, GameConstant, ShapeConstant
 from src.model import State, Player, Board
 
@@ -12,7 +12,7 @@ from src.model import State, Player, Board
 # from ..model import State,Player,Board,Piece
 from typing import Tuple, List
 
-from copy import deepcopy
+from copy import copy, deepcopy
 class Minimax:
     def __init__(self):
         pass
@@ -21,6 +21,8 @@ class Minimax:
         self.thinking_time = time() + thinking_time
 
         best_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
+
+        value = Minimax.max_value()
 
         return best_movement
 
@@ -56,15 +58,65 @@ class Minimax:
         #     # score = horizontal_streak + vertical_streak + positive_diagonal + negative_diagonal + minus
         #     # Set value in movement_heuristic array with score
         #     pass        
-        return max_heuristic, min_heuristic
+        # return max_heuristic, min_heuristic
+        return movement_heuristic
+        
+    def max_value(state: State, alpha: int, beta: int, n_player: int):
+        board = deepcopy(state.board)
+        terminal_test = is_win(board) or is_full(board)
+        if (terminal_test):
+            return Minimax.get_total_score(state,n_player)
+            # menang atau engga
+        value = -float("inf")
+        # List all possible actions
+        actions = Minimax.heuristic(state, n_player)
+        possible_actions = []
+        result_states = []
+        for a in actions:
+            state_2 = deepcopy(state)
+            if place(state_2,n_player,a[0][1],a[0][0]) != -1:
+                possible_actions.append(tuple(a[0][1],a[0][0]))
+                result_states.append(state_2)
+        for i in range(len(possible_actions)):
+            value = max(value, Minimax.min_value(result_states[i],alpha,beta,n_player))
+            if value >= beta:
+                return value
+            alpha = max(alpha, value)
+        return value
     
+    def min_value(state: State, alpha: int, beta: int, n_player: int):
+        board = deepcopy(state.board)
+        terminal_test = is_win(board) or is_full(board)
+        if (terminal_test):
+            return Minimax.heuristic(n_player) # menang atau engga
+        value = float("inf")
+        # List all possible actions
+        actions = Minimax.heuristic(state, n_player)
+        possible_actions = []
+        result_states = []
+        for a in actions:
+            state_2 = deepcopy(state)
+            if place(state_2,n_player,a[0][1],a[0][0]) != -1:
+                possible_actions.append(tuple(a[0][1],a[0][0]))
+                result_states.append(state_2)
+        for i in range(len(possible_actions)):
+            value = min(value, Minimax.max_value(result_states[i],alpha,beta,n_player))
+            if value <= alpha:
+                return value
+            beta = min(beta, value)
+        return value
+
     def get_total_score(state: State, n_player: int, shape: str, col: str) -> int:
-        # TODO
+        # Kondisi bisa nge place
         horizontal = Minimax.horizontal(state,n_player,shape,col)
         vertical = Minimax.vertical(state,n_player,shape,col)
         positive_diagonal = Minimax.positive_diagonal(state,n_player,shape,col)
         negative_diagonal = Minimax.negative_diagonal(state,n_player,shape,col)
         return horizontal + vertical + positive_diagonal + negative_diagonal
+
+    def get_state_score(state: State, n_player:int) -> int:
+        
+        return score
 
     def get_shape_color(n_player: int) -> Tuple[str,str,str,str]:
         if (n_player == 0):
@@ -86,6 +138,112 @@ class Minimax:
     # Garis dengan 3 bidak berdasarkan shape pemain: +50
     # Garis dengan 4 bidak berdasarkan warna pemain: +800
     # Garis dengan 4 bidak berdasarkan shape pemain: +1000
+
+    
+    def get_total_score_testing(state: State, n_player: int, shape: str, col: str) -> int:
+        total_score = 0
+        copy_state = deepcopy(state)
+        board = copy_state.board
+        is_placed = place(copy_state, n_player, shape, col) # returns -1 if invalid
+        score_vertical = Minimax.vertical_testing(copy_state, n_player)
+
+        return score_vertical
+    
+    def vertical_testing(state: State, n_player: int) -> int:
+        # total_score = 0
+        # copy_state = deepcopy(state)
+        # board = copy_state.board
+        # is_placed = place(copy_state,n_player,shape,col) # returns -1 if invalid
+
+        score_1 = score_2 = score_3 = score_4 = 0
+        blank = ShapeConstant.BLANK
+        player_shape, player_color, opponent_shape, opponent_color = Minimax.get_shape_color(n_player)
+        board = state.board
+        # if (is_placed != 1):
+        for j in range (board.col):
+            for i in range (board.row-1, -1, -1):
+                # player_shape = shape
+                # player_color = GameConstant.PLAYER_COLOR[n_player]
+
+                try:
+                    shape_1 = board.__getitem__([i,j]).shape
+                    shape_2 = board.__getitem__([i-1,j]).shape
+                    shape_3 = board.__getitem__([i-2,j]).shape
+                    shape_4 = board.__getitem__([i-3,j]).shape
+                    color_1 = board.__getitem__([i,j]).color
+                    color_2 = board.__getitem__([i-1,j]).color
+                    color_3 = board.__getitem__([i-2,j]).color
+                    color_4 = board.__getitem__([i-3,j]).color
+
+                    # Pada ilustrasi di bawah, kiri = bawah, kanan = atas
+                    # Garis dengan 1 bidak berdasarkan warna atau shape pemain: +1
+                    # X___
+                    if ((color_1 == player_color) or (shape_1 == player_shape)) and (shape_2 == shape_3 == shape_4 == blank):
+                        score_1 += 1
+                        
+                    # Garis dengan 2 bidak berdasarkan warna pemain: +5
+                    # XX__
+                    if (color_1 == color_2 == player_color) and (shape_3 == shape_4 == blank):
+                        score_2 += 5
+
+                    # Garis dengan 2 bidak berdasarkan shape pemain: +10
+                    # XX__
+                    if (shape_1 == shape_2 == player_shape) and (shape_3 == shape_4 == blank):
+                        score_2 += 10
+
+                    # Garis dengan 3 bidak berdasarkan warna pemain: +30
+                    # XXX_
+                    if (color_1 == color_2 == color_3 == player_color) and (shape_4 == blank):
+                        score_3 += 30
+
+                    # Garis dengan 3 bidak berdasarkan shape pemain: +50
+                    # XXX_
+                    if (shape_1 == shape_2 == shape_3 == player_shape) and (shape_4 == blank):
+                        score_3 += 50
+
+                    # Garis dengan 4 bidak berdasarkan warna pemain: +800
+                    if (color_1 == color_2 == color_3 == color_4 == player_color):
+                        score_4 += 800
+
+                    # Garis dengan 4 bidak berdasarkan shape pemain: +1000
+                    if (shape_1 == shape_2 == shape_3 == shape_4 == player_shape):
+                        score_4 += 1000
+
+                    # CEK OPPONENT
+                    # Garis dengan 2 bidak berdasarkan warna lawan: -5
+                    # XX__
+                    if (color_1 == color_2 == opponent_color) and (shape_3 == shape_4 == blank):
+                        score_2 -= 5
+
+                    # Garis dengan 2 bidak berdasarkan shape lawan: -10
+                    # XX__
+                    if (shape_1 == shape_2 == opponent_shape) and (shape_3 == shape_4 == blank):
+                        score_2 -= 10
+
+                    # Garis dengan 3 bidak berdasarkan warna lawan: -30
+                    # XXX_
+                    if (color_1 == color_2 == color_3 == opponent_color) and (shape_4 == blank):
+                        score_3 -= 30
+
+                    # Garis dengan 3 bidak berdasarkan shape lawan: -50
+                    # XXX_
+                    if (shape_1 == shape_2 == shape_3 == opponent_shape) and (shape_4 == blank):
+                        score_3 -= 50
+
+                    # Garis dengan 4 bidak berdasarkan warna lawan: -800
+                    if (color_1 == color_2 == color_3 == color_4 == opponent_color):
+                        score_4 -= 800
+
+                    # Garis dengan 4 bidak berdasarkan shape lawan: -1000
+                    if (shape_1 == shape_2 == shape_3 == shape_4 == opponent_shape):
+                        score_4 -= 1000
+
+                except IndexError:
+                    pass
+
+        total_score = score_1 + score_2 + score_3 + score_4
+        return total_score
+
 
     def horizontal(state: State, n_player: int, shape: str, col: str) -> int:
         total_score = 0
@@ -290,7 +448,7 @@ class Minimax:
         blank = ShapeConstant.BLANK
         player_shape, player_color, opponent_shape, opponent_color = Minimax.get_shape_color(n_player)
 
-        if (is_placed != 1):
+        if (is_placed != -1):
             for j in range (board.col):
                 for i in range (board.row-1, -1, -1):
                     # player_shape = shape
@@ -386,7 +544,7 @@ class Minimax:
         blank = ShapeConstant.BLANK
         player_shape, player_color, opponent_shape, opponent_color = Minimax.get_shape_color(n_player)
     
-        if (is_placed != 1):
+        if (is_placed != -1):
             for i in range(0, board.row):
                 for j in range(0, board.col):
                     try: 
@@ -616,7 +774,7 @@ class Minimax:
         blank = ShapeConstant.BLANK
         player_shape, player_color, opponent_shape, opponent_color = Minimax.get_shape_color(n_player)
 
-        if (is_placed != 1):
+        if (is_placed != -1):
             for i in range (board.row):
                 for j in range (board.col):
                     try:
@@ -831,7 +989,7 @@ test_state = State(test_board,test_players,1)
 
 
 # Test Vertical
-# place(test_state,0,"O",0)
+place(test_state,0,"O",0)
 # place(test_state,0,"O",1)
 # place(test_state,0,"O",2)
 # place(test_state,0,"O",2)
@@ -840,11 +998,11 @@ test_state = State(test_board,test_players,1)
 # place(test_state,1,"X",6)
 # place(test_state,1,"X",6)
 
-# print("TEST VERTICAL")
-# print(test_state.board)
-# score = Minimax.vertical(test_state,0,'O',2)
-# print(test_state.board)
-# print(score)
+print("TEST VERTICAL")
+print(test_state.board)
+score = Minimax.get_total_score_testing(test_state,0,'O',0)
+print(test_state.board)
+print(score)
 
 # # Test Positive Diagonal
 # print("TEST POSITIVE DIAGONAL")
@@ -858,20 +1016,20 @@ test_state = State(test_board,test_players,1)
 # place(test_state,0,"X",0)
 
 # Test Negative Diagonal
-place(test_state,0,"O",1)
-place(test_state,0,"O",1)
-place(test_state,0,"O",1)
-place(test_state,0,"O",2)
-place(test_state,0,"O",2)
-place(test_state,0,"X",3)
-place(test_state,1,"X",4)
-place(test_state,1,"X",4)
-place(test_state,1,"X",5)
-place(test_state,1,"X",5)
+# place(test_state,0,"O",1)
+# place(test_state,0,"O",1)
+# place(test_state,0,"O",1)
+# place(test_state,0,"O",2)
+# place(test_state,0,"O",2)
+# place(test_state,0,"X",3)
+# place(test_state,1,"X",4)
+# place(test_state,1,"X",4)
+# place(test_state,1,"X",5)
+# place(test_state,1,"X",5)
 
-print("TEST NEGATIVE DIAGONAL")
-print(test_state.board)
-score_neg_diag = Minimax.negative_diagonal(test_state,0,"X",3)
-score_ver = Minimax.vertical(test_state,0,"X",3)
-score_tot = score_neg_diag + score_ver
-print(str(score_neg_diag) + "+" + str(score_ver) + "=" + str(score_tot))
+# print("TEST NEGATIVE DIAGONAL")
+# print(test_state.board)
+# score_neg_diag = Minimax.negative_diagonal(test_state,0,"X",3)
+# score_ver = Minimax.vertical(test_state,0,"X",3)
+# score_tot = score_neg_diag + score_ver
+# print(str(score_neg_diag) + "+" + str(score_ver) + "=" + str(score_tot))
