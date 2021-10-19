@@ -23,7 +23,16 @@ class LocalSearch:
         copy_state = copy.deepcopy(state)
         placement = place(copy_state, n_player, choosen_shape, choosen_col)
         return copy_state.board
-    
+
+    def evaluateState(self, board: Board) -> int :
+        sum = 0
+        for row in range(board.row):
+            for col in range(board.col):
+                if(board[row, col].shape == GameConstant.PLAYER1_SHAPE or board[row, col].color == GameConstant.PLAYER1_COLOR) :
+                    streak = self.checkMaxStreak(board, row, col)
+                    sum += streak
+        return sum
+    """
     def evaluateState(self, board: Board) -> int :
         max = 0
         for row in range(board.row):
@@ -33,6 +42,7 @@ class LocalSearch:
                     if(streak > max) :
                         max = streak
         return max
+    """
 
     def checkMaxStreak(self, board: Board, row: int, col: int) -> int :
         piece = board[row, col]
