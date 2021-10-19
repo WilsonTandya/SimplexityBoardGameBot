@@ -1,5 +1,12 @@
 # Simplexity Board Game
 
+## Note:
+```
+virtualenv venv
+source venv/bin/activate
+source /Users/shafiranaya/Documents/simplexity-ai/env/bin/activate
+```
+
 ## 📖  How to Run
 
 1. Install virtualenv if you haven't
