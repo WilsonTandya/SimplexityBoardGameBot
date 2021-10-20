@@ -80,8 +80,6 @@ class LocalSearchGroup25:
                     mark += 1
                 if mark > max_streak :
                     max_streak = mark
-        if(max_streak == 3 ) :
-            return 9999
         return max_streak
     
     def prob(self, deltaE : int, thinking_time : float) -> float :
