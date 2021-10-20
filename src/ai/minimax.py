@@ -1,3 +1,4 @@
+from os import terminal_size
 import random
 from time import sleep, time
 import sys
@@ -17,29 +18,58 @@ class MinimaxGroup25:
 
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
-        # Choose random movement
-        movements = MinimaxGroup25.heuristic(state, n_player)
-        random_number = random.randint(0,len(movements)-1)
-        best_movement = movements[random_number][0]
+        action, value = MinimaxGroup25.minimax(state, 3, -float("inf"), float("inf"), True, n_player)
+        action = (action[1], action[0])
+        print("Action:",action,"Value:",value)
+        return action
 
-        alpha = -float("inf")
-        beta = float("inf")
-        value = MinimaxGroup25.max_value(state,alpha,beta, n_player,2)
-        # Look for movement in movements with heuristic = value
-        found = False
-        i = 0
-        while(not found and i < len(movements)):
-            if (movements[i][1] == value):
-                found = True
-                best_movement = movements[i][0]
-            else:
-                i += 1
-        # print("Best movement",best_movement)
-        # if (found):
-        #     print("found")
-        # else:
-        #     print("not found")
-        return best_movement
+    def minimax(state, depth, alpha, beta, maximizingPlayer,n_player):
+        board = state.board
+        possible_actions, result_states = MinimaxGroup25.get_possible_actions(state, n_player)
+        # valid_locations = get_valid_locations(board)
+        is_terminal = is_win(board) or is_full(board)
+        if depth == 0 or is_terminal:
+            if (depth != 0):
+                winner = is_win(board)
+                if (winner[1] == state.players[n_player].color) : # piece player
+                    return (None,100000000000000)
+                elif (winner[1] == state.players[(n_player+1) % 2].color): # piece lawan
+                    return (None,-100000000000000)
+                else:
+                    return (None, 0)
+            else: 
+                return (None, MinimaxGroup25.get_state_score(state,n_player))
+        if maximizingPlayer:
+            value = -float("inf")
+            action = random.choice(possible_actions)
+            for act in possible_actions:
+                # row = get_next_open_row(board, col)
+                # b_copy = copy(board)
+                state_copy = deepcopy(state)
+                place(state_copy, n_player, action[0], action[1])
+                new_score = MinimaxGroup25.minimax(state_copy, depth-1, alpha, beta, False, n_player)[1]
+                # new_score = minimax(b_copy, depth-1, alpha, beta, False)[1]
+                if new_score > value:
+                    value = new_score
+                    action = act
+                alpha = max(alpha, value)
+                if alpha >= beta:
+                    break
+            return action, value
+        else: # Minimizing player
+            value = float("inf")
+            action = random.choice(possible_actions)
+            for act in possible_actions:
+                state_copy = deepcopy(state)
+                place(state_copy, n_player, action[0], action[1])
+                new_score = MinimaxGroup25.minimax(state_copy, depth-1, alpha, beta, True, n_player)[1]
+                if new_score < value:
+                    value = new_score
+                    action = act
+                beta = min(beta, value)
+                if alpha >= beta:
+                    break
+            return action, value
 
     def heuristic(state: State, n_player: int) -> Tuple[Tuple[str, str], int]:
         """
@@ -102,6 +132,31 @@ class MinimaxGroup25:
                 result_states.append(copy_state)
         return possible_actions, result_states
     
+    def alpha_beta(state: State, depth: int, alpha: int, beta: int, is_maximizing: bool, n_player: int):
+        copy_state = deepcopy(state)
+        board = copy_state.board
+        terminal_test = is_win(board) is not None or is_full(board)
+        movements = MinimaxGroup25.heuristic(copy_state, n_player)
+        possible_actions, result_states = MinimaxGroup25.get_possible_actions(state, n_player)
+        if depth == 0 or terminal_test:
+            return MinimaxGroup25.get_state_score(copy_state,n_player)
+        if is_maximizing:
+            value = -float("inf")
+            for action in possible_actions:
+                value = min(value, MinimaxGroup25.alpha_beta(action, depth-1, alpha, beta, True, n_player))
+                alpha = max(alpha, value)
+                if alpha >= beta:
+                    break
+        else:
+            value = float("inf")
+            for action in possible_actions:
+                value = max(value, MinimaxGroup25.alpha_beta(action, depth-1, alpha, beta, True, n_player))
+                beta = min(beta, value)
+                if beta <= alpha:
+                    break
+        return alpha
+
+
     def max_value(state: State, alpha: int, beta: int, n_player: int, depth: int):
         # List all possible actions
         possible_actions, result_states = MinimaxGroup25.get_possible_actions(state, n_player)
