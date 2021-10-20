@@ -175,6 +175,7 @@ class MinimaxGroup25:
             opponent_color = GameConstant.PLAYER1_COLOR
         return player_shape, player_color, opponent_shape, opponent_color
     
+    # Nilai:
     # Garis dengan 1 bidak berdasarkan warna atau shape pemain: +1
     # Garis dengan 2 bidak berdasarkan warna pemain: +5
     # Garis dengan 2 bidak berdasarkan shape pemain: +10
@@ -182,6 +183,13 @@ class MinimaxGroup25:
     # Garis dengan 3 bidak berdasarkan shape pemain: +50
     # Garis dengan 4 bidak berdasarkan warna pemain: +800
     # Garis dengan 4 bidak berdasarkan shape pemain: +1000
+
+    # Garis dengan 2 bidak berdasarkan warna lawan: -5
+    # Garis dengan 2 bidak berdasarkan shape lawan: -10
+    # Garis dengan 3 bidak berdasarkan warna lawan: -30
+    # Garis dengan 3 bidak berdasarkan shape lawan: -50
+    # Garis dengan 4 bidak berdasarkan warna lawan: -800
+    # Garis dengan 4 bidak berdasarkan shape lawan: -1000
     
     def horizontal(state: State, n_player: int) -> int:
         board = state.board
