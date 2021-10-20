@@ -18,9 +18,9 @@ class MinimaxGroup25:
 
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
-        action, value = MinimaxGroup25.minimax(state, 3, -float("inf"), float("inf"), True, n_player)
+        action, value = MinimaxGroup25.minimax(state, 2, -float("inf"), float("inf"), True, n_player)
         action = (action[1], action[0])
-        print("Action:",action,"Value:",value)
+        # print("Action:",action,"Value:",value)
         return action
 
     def minimax(state, depth, alpha, beta, maximizingPlayer,n_player):
@@ -72,14 +72,6 @@ class MinimaxGroup25:
             return action, value
 
     def heuristic(state: State, n_player: int) -> Tuple[Tuple[str, str], int]:
-        """
-        Heuristic function to check heuristic value (objective function)
-
-        [RETURN]
-            Tuple[str, str] -> best movement
-            int             -> heuristic value
-
-        """
         # Array consists of movement possibilities with their heuristic value
         movement_heuristic = []
         copy_state = deepcopy(state)
@@ -155,43 +147,6 @@ class MinimaxGroup25:
                 if beta <= alpha:
                     break
         return alpha
-
-
-    def max_value(state: State, alpha: int, beta: int, n_player: int, depth: int):
-        # List all possible actions
-        possible_actions, result_states = MinimaxGroup25.get_possible_actions(state, n_player)
-
-        board = deepcopy(state.board)
-        terminal_test = is_win(board) != None or is_full(board) or depth == 0
-        if (terminal_test):
-            return MinimaxGroup25.get_state_score(state,n_player)
-
-        value = -float("inf")
-    
-        for i in range(len(possible_actions)):
-            value = max(value, MinimaxGroup25.min_value(result_states[i],alpha,beta,n_player,depth-1))
-            if value >= beta:
-                return value
-            alpha = max(alpha, value)
-     
-        return value
-    
-    def min_value(state: State, alpha: int, beta: int, n_player: int, depth: int):
-        # List all possible actions
-        possible_actions, result_states = MinimaxGroup25.get_possible_actions(state, n_player)
-
-        board = deepcopy(state.board)
-        terminal_test = is_win(board) != None or is_full(board) or depth == 0
-        if (terminal_test):
-            return MinimaxGroup25.get_state_score(state, n_player)
-
-        value = float("inf")
-        for i in range(len(possible_actions)):
-            value = min(value, MinimaxGroup25.max_value(result_states[i],alpha,beta,n_player,depth-1))
-            if value <= alpha:
-                return value
-            beta = min(beta, value)
-        return value
 
     def get_placement_score(state: State, n_player: int, shape: str, col: str) -> int:
         # Score after placement
@@ -891,32 +846,32 @@ class MinimaxGroup25:
         total_score = score_1 + score_2 + score_3 + score_4
         return total_score       
 
-# TEST
-test_board = Board(6,7)
-# Misal player 1: cross red, player 2: circle blue
-n_quota = 6 * 7 / 2
+# # TEST
+# test_board = Board(6,7)
+# # Misal player 1: cross red, player 2: circle blue
+# n_quota = 6 * 7 / 2
 
-test_quota = [
-    {
-        ShapeConstant.CROSS: n_quota // 2,
-        ShapeConstant.CIRCLE: n_quota - (n_quota // 2),
-    },
-    {
-        ShapeConstant.CROSS: n_quota - (n_quota // 2),
-        ShapeConstant.CIRCLE: n_quota // 2,
-    },
-]
-test_players = [
-            Player(
-                ShapeConstant.CIRCLE, ColorConstant.RED, test_quota[0]
-            ),
-            Player(
-                ShapeConstant.CROSS, ColorConstant.BLUE, test_quota[1]
-            ),
-        ]
-test_state = State(test_board,test_players,1)
+# test_quota = [
+#     {
+#         ShapeConstant.CROSS: n_quota // 2,
+#         ShapeConstant.CIRCLE: n_quota - (n_quota // 2),
+#     },
+#     {
+#         ShapeConstant.CROSS: n_quota - (n_quota // 2),
+#         ShapeConstant.CIRCLE: n_quota // 2,
+#     },
+# ]
+# test_players = [
+#             Player(
+#                 ShapeConstant.CIRCLE, ColorConstant.RED, test_quota[0]
+#             ),
+#             Player(
+#                 ShapeConstant.CROSS, ColorConstant.BLUE, test_quota[1]
+#             ),
+#         ]
+# test_state = State(test_board,test_players,1)
 
-place(test_state,1,"O",2)
-print(test_board)
-score = MinimaxGroup25.get_placement_score(test_state,0,"O",6)
-print(score)
+# place(test_state,1,"O",2)
+# print(test_board)
+# score = MinimaxGroup25.get_placement_score(test_state,0,"O",6)
+# print(score)
