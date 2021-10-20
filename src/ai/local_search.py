@@ -9,7 +9,7 @@ from src.utility import place, is_out
 from typing import Tuple, List
 
 
-class LocalSearch:
+class LocalSearchGroup25:
     def __init__(self):
         pass
 
