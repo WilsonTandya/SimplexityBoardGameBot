@@ -26,22 +26,34 @@ class LocalSearchGroup25:
 
     def evaluateState(self, board: Board, n_player) -> int :
         sum = 0
+        #Bot = Player1
         if (n_player == 0) :
             for row in range(board.row):
                 for col in range(board.col):
                     if(board[row, col].shape == GameConstant.PLAYER1_SHAPE or board[row, col].color == GameConstant.PLAYER1_COLOR) :
                         streak = self.checkMaxStreak(board, row, col)
                         sum += streak
-                    elif(board[row, col].shape == GameConstant.PLAYER2_SHAPE or board[row, col].color == GameConstant.PLAYER2_COLOR) :
+                        if(board[row, col].shape == GameConstant.PLAYER1_SHAPE) : 
+                            sum+=1
+                        if(board[row, col].color == GameConstant.PLAYER1_COLOR) :
+                            sum+=1
+                    #Mengecek apakah move akan membuat musuh menang
+                    if(board[row, col].shape == GameConstant.PLAYER2_SHAPE or board[row, col].color == GameConstant.PLAYER2_COLOR) :
                         streak = self.checkMaxStreak(board, row, col)
                         sum -= streak
-        else : 
+        #Bot = Player2
+        else :
             for row in range(board.row):
                 for col in range(board.col):
                     if(board[row, col].shape == GameConstant.PLAYER2_SHAPE or board[row, col].color == GameConstant.PLAYER2_COLOR) :
                         streak = self.checkMaxStreak(board, row, col)
                         sum += streak
-                    elif(board[row, col].shape == GameConstant.PLAYER1_SHAPE or board[row, col].color == GameConstant.PLAYER1_COLOR) :
+                        if(board[row, col].shape == GameConstant.PLAYER2_SHAPE) : 
+                            sum+=1
+                        if(board[row, col].color == GameConstant.PLAYER2_COLOR) :
+                            sum+=1
+                    #Mengecek apakah move akan membuat musuh menang
+                    if(board[row, col].shape == GameConstant.PLAYER1_SHAPE or board[row, col].color == GameConstant.PLAYER1_COLOR) :
                         streak = self.checkMaxStreak(board, row, col)
                         sum -= streak
         return sum
@@ -80,6 +92,9 @@ class LocalSearchGroup25:
                     mark += 1
                 if mark > max_streak :
                     max_streak = mark
+        if(max_streak == 3) :
+            max_streak = 9999
+            
         return max_streak
     
     def prob(self, deltaE : int, thinking_time : float) -> float :
@@ -102,7 +117,7 @@ class LocalSearchGroup25:
                 choosen_col, choosen_shape = next_col, next_shape
                 choosen_board = succ_board
             else :
-                if(self.prob(deltaE, self.thinking_time) > 0.5) :
+                if(self.prob(deltaE, self.thinking_time) > 0.8) :
                     choosen_col, choosen_shape = next_col, next_shape
                     choosen_board = succ_board
             self.thinking_time -= (time() - self.start_time)
