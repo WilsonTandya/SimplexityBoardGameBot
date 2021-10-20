@@ -94,14 +94,15 @@ class MinimaxGroup25:
         return possible_actions, result_states
     
     def max_value(state: State, alpha: int, beta: int, n_player: int, depth: int):
+        # List all possible actions
+        possible_actions, result_states = MinimaxGroup25.new_heuristic(state, n_player)
+
         board = deepcopy(state.board)
-        terminal_test = is_win(board) != None or is_full(board) or depth == 0
+        terminal_test = is_win(board) != None or is_full(board) or depth == 0 or len(possible_actions) == 0
         if (terminal_test):
             return MinimaxGroup25.get_state_score(state, n_player)
         value = -float("inf")
         
-        # List all possible actions
-        possible_actions, result_states = MinimaxGroup25.new_heuristic(state, n_player)
 
         for i in range(len(possible_actions)):
             value = max(value, MinimaxGroup25.min_value(result_states[i],alpha,beta,n_player,depth-1))
@@ -111,14 +112,14 @@ class MinimaxGroup25:
         return value
     
     def min_value(state: State, alpha: int, beta: int, n_player: int, depth: int):
+        # List all possible actions
+        possible_actions, result_states = MinimaxGroup25.new_heuristic(state, n_player)
+
         board = deepcopy(state.board)
-        terminal_test = is_win(board) != None or is_full(board) or depth == 0
+        terminal_test = is_win(board) != None or is_full(board) or depth == 0 or len(possible_actions) == 0
         if (terminal_test):
             return MinimaxGroup25.get_state_score(state, n_player) # menang atau engga
         value = float("inf")
-
-        # List all possible actions
-        possible_actions, result_states = MinimaxGroup25.new_heuristic(state, n_player)
 
         for i in range(len(possible_actions)):
             value = min(value, MinimaxGroup25.max_value(result_states[i],alpha,beta,n_player,depth-1))
