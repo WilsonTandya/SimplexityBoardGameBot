@@ -18,18 +18,23 @@ class MinimaxGroup25:
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
         # Choose random movement
-        movements, result_states = MinimaxGroup25.new_heuristic(state, n_player)
+        # movements, result_states = MinimaxGroup25.new_heuristic(state, n_player)
         # movements = MinimaxGroup25.get_possible_actions(state, n_player)[0] # str, col
+        movements = MinimaxGroup25.heuristic(state, n_player)
         print("Movements =",movements)
-        max_heuristic = max(movements, key = lambda x: x[1])
-        # random_number = random.randint(0,len(movements)-1)
-        # best_movement = movements[random_number][0]
-        best_movement = max_heuristic[0]
+        # max_heuristic = max(movements, key = lambda x: x[1])
+        random_number = random.randint(0,len(movements)-1)
+        best_movement = movements[random_number][0]
+        # best_movement = max_heuristic[0]
 
         alpha = -float("inf")
         beta = float("inf")
-        value = MinimaxGroup25.max_value(state, alpha, beta, n_player, 2)
-        print("Value:",value)
+        value = MinimaxGroup25.max_value(state,alpha,beta, n_player,2)
+       
+        # movement, value = MinimaxGroup25.max_value(state, alpha, beta, n_player, 1)
+        # print("Value:",value)
+        # print("movement:", movement)
+
         # Look for movement in movements with heuristic = value
         found = False
         i = 0
@@ -39,15 +44,41 @@ class MinimaxGroup25:
                 best_movement = movements[i][0]
             else:
                 i += 1
-        print("Best movement",best_movement)
+        # print("Best movement",best_movement)
         if (found):
             print("found")
         else:
             print("not found")
-
         return best_movement
+        # return type: column, shape
+        # print("MOVEMENT: ",movement[1], movement[0])
+        # return movement[1], movement[0]
+
+    # def heuristic(state: State, n_player: int) -> Tuple[Tuple[str, str], int]:
+    #     # Array consists of movement possibilities with their heuristic value
+    #     movement_heuristic = []
+    #     copy_state = deepcopy(state)
+    #     board = copy_state.board
+    #     shapes = [GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER2_SHAPE] 
+    #     for i in range(board.col):
+    #         for j in range(len(shapes)):
+    #             is_feasible = copy_state.players[n_player].quota[shapes[j]] != 0 and place(copy_state,n_player,shapes[j],i) != -1
+    #             if (is_feasible):
+    #                 score = MinimaxGroup25.get_placement_score(copy_state,n_player,shapes[j],i)
+    #                 movement = (i, shapes[j])
+    #                 movement_heuristic.append((movement, score))
+                
+    #     return movement_heuristic
 
     def heuristic(state: State, n_player: int) -> Tuple[Tuple[str, str], int]:
+        """
+        Heuristic function to check heuristic value (objective function)
+
+        [RETURN]
+            Tuple[str, str] -> best movement
+            int             -> heuristic value
+
+        """
         # Array consists of movement possibilities with their heuristic value
         movement_heuristic = []
         copy_state = deepcopy(state)
@@ -55,30 +86,65 @@ class MinimaxGroup25:
         shapes = [GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER2_SHAPE] 
         for i in range(board.col):
             for j in range(len(shapes)):
-                is_feasible = copy_state.players[n_player].quota[shapes[j]] != 0 and place(copy_state,n_player,shapes[j],i) != -1
+                is_feasible = copy_state.players[n_player].quota[shapes[j]] != 0
                 if (is_feasible):
                     score = MinimaxGroup25.get_placement_score(copy_state,n_player,shapes[j],i)
                     movement = (i, shapes[j])
                     movement_heuristic.append((movement, score))
-                
+                    
+        # for i in range (state.board.col):
+        #     # Calculate for cross shape:
+        #     # score = horizontal_streak + vertical_streak + positive_diagonal + negative_diagonal + minus
+        #     # Set value in movement_heuristic array with score
+
+        #     # Calculate for circle shape:
+        #     # score = horizontal_streak + vertical_streak + positive_diagonal + negative_diagonal + minus
+        #     # Set value in movement_heuristic array with score
+        #     pass        
+        # return max_heuristic, min_heuristic
         return movement_heuristic
 
-    def new_heuristic(state: State, n_player: int):
-        movement_heuristic = []
+    def get_possible_actions(state: State, n_player: int):
+        # List all possible actions and result states
+        actions = MinimaxGroup25.heuristic(state, n_player)
         possible_actions = []
         result_states = []
-        copy_state = deepcopy(state)
-        board = copy_state.board
-        shapes = [GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER2_SHAPE] 
-        for i in range(board.col):
-            for j in range(len(shapes)):
-                is_feasible = copy_state.players[n_player].quota[shapes[j]] != 0 and place(copy_state,n_player,shapes[j],i) != -1
-                if (is_feasible):
-                    score = MinimaxGroup25.get_placement_score(copy_state,n_player,shapes[j],i)
-                    movement = (i, shapes[j])
-                    possible_actions.append((movement, score))
-                    result_states.append(copy_state)
+        for a in actions:
+            copy_state = deepcopy(state)
+            if place(copy_state,n_player,a[0][1], a[0][0]) != -1:
+                possible_actions.append((a[0][1], a[0][0]))
+                result_states.append(copy_state)
         return possible_actions, result_states
+
+    # def new_heuristic(state: State, n_player: int):
+    #     movement_heuristic = []
+    #     possible_actions = []
+    #     result_states = []
+    #     copy_state = deepcopy(state)
+    #     board = copy_state.board
+    #     shapes = [GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER2_SHAPE] 
+    #     for i in range(board.col):
+    #         for j in range(len(shapes)):
+    #             #  and place(deepcopy(copy_state),n_player,shapes[j],i) != -1
+    #             is_feasible = copy_state.players[n_player].quota[shapes[j]] != 0
+    #             if (is_feasible):
+    #                 score = MinimaxGroup25.get_placement_score((copy_state),n_player,shapes[j],i)
+    #                 movement = (i, shapes[j])
+    #                 possible_actions.append((movement, score))
+    #                 result_states.append(copy_state)
+    #     return possible_actions, result_states
+
+    def get_movement_from_value(movements, value):
+        # Look for movement in movements with heuristic = value
+        found = False
+        i = 0
+        while(not found and i < len(movements)):
+            if (movements[i][1] == value):
+                found = True
+                best_movement = movements[i][0]
+            else:
+                i += 1
+        return best_movement
 
     def get_possible_actions(state: State, n_player: int):
         # List all possible actions and result states
@@ -95,38 +161,48 @@ class MinimaxGroup25:
     
     def max_value(state: State, alpha: int, beta: int, n_player: int, depth: int):
         # List all possible actions
-        possible_actions, result_states = MinimaxGroup25.new_heuristic(state, n_player)
+        possible_actions, result_states = MinimaxGroup25.get_possible_actions(state, n_player)
 
         board = deepcopy(state.board)
-        terminal_test = is_win(board) != None or is_full(board) or depth == 0 or len(possible_actions) == 0
+        terminal_test = is_win(board) != None or is_full(board) or depth == 0
         if (terminal_test):
-            return MinimaxGroup25.get_state_score(state, n_player)
+            return MinimaxGroup25.get_state_score(state,n_player)
+            # return (None, MinimaxGroup25.get_state_score(state, n_player))
         value = -float("inf")
-        
-
+    
         for i in range(len(possible_actions)):
             value = max(value, MinimaxGroup25.min_value(result_states[i],alpha,beta,n_player,depth-1))
+            # value = max(value, MinimaxGroup25.min_value(result_states[i],alpha,beta,n_player,depth-1)[1])
             if value >= beta:
                 return value
+                # return possible_actions[i], value
             alpha = max(alpha, value)
+        # movement = MinimaxGroup25.get_movement_from_value()
+        # print("Possible actions:",possible_actions[i])
+        print("Value: ",value)
         return value
+        # return possible_actions[i], value
     
     def min_value(state: State, alpha: int, beta: int, n_player: int, depth: int):
         # List all possible actions
-        possible_actions, result_states = MinimaxGroup25.new_heuristic(state, n_player)
+        possible_actions, result_states = MinimaxGroup25.get_possible_actions(state, n_player)
 
         board = deepcopy(state.board)
-        terminal_test = is_win(board) != None or is_full(board) or depth == 0 or len(possible_actions) == 0
+        terminal_test = is_win(board) != None or is_full(board) or depth == 0
         if (terminal_test):
-            return MinimaxGroup25.get_state_score(state, n_player) # menang atau engga
+            return MinimaxGroup25.get_state_score(state, n_player)
+            # return (None, MinimaxGroup25.get_state_score(state, n_player)) # menang atau engga
         value = float("inf")
-
         for i in range(len(possible_actions)):
             value = min(value, MinimaxGroup25.max_value(result_states[i],alpha,beta,n_player,depth-1))
+            # value = min(value, MinimaxGroup25.max_value(result_states[i],alpha,beta,n_player,depth-1)[1])
             if value <= alpha:
                 return value
+                # return possible_actions[i], value
             beta = min(beta, value)
+        print("value: ",value)
         return value
+        # return possible_actions[i], value
 
     def get_placement_score(state: State, n_player: int, shape: str, col: str) -> int:
         # Score after placement
@@ -826,27 +902,32 @@ class MinimaxGroup25:
         total_score = score_1 + score_2 + score_3 + score_4
         return total_score       
 
-# # TEST
-# test_board = Board(6,7)
-# # Misal player 1: cross red, player 2: circle blue
-# n_quota = 6 * 7 / 2
+# TEST
+test_board = Board(6,7)
+# Misal player 1: cross red, player 2: circle blue
+n_quota = 6 * 7 / 2
 
-# test_quota = [
-#     {
-#         ShapeConstant.CROSS: n_quota // 2,
-#         ShapeConstant.CIRCLE: n_quota - (n_quota // 2),
-#     },
-#     {
-#         ShapeConstant.CROSS: n_quota - (n_quota // 2),
-#         ShapeConstant.CIRCLE: n_quota // 2,
-#     },
-# ]
-# test_players = [
-#             Player(
-#                 ShapeConstant.CIRCLE, ColorConstant.RED, test_quota[0]
-#             ),
-#             Player(
-#                 ShapeConstant.CROSS, ColorConstant.BLUE, test_quota[1]
-#             ),
-#         ]
-# test_state = State(test_board,test_players,1)
+test_quota = [
+    {
+        ShapeConstant.CROSS: n_quota // 2,
+        ShapeConstant.CIRCLE: n_quota - (n_quota // 2),
+    },
+    {
+        ShapeConstant.CROSS: n_quota - (n_quota // 2),
+        ShapeConstant.CIRCLE: n_quota // 2,
+    },
+]
+test_players = [
+            Player(
+                ShapeConstant.CIRCLE, ColorConstant.RED, test_quota[0]
+            ),
+            Player(
+                ShapeConstant.CROSS, ColorConstant.BLUE, test_quota[1]
+            ),
+        ]
+test_state = State(test_board,test_players,1)
+
+place(test_state,1,"O",2)
+print(test_board)
+score = MinimaxGroup25.get_placement_score(test_state,0,"O",6)
+print(score)
