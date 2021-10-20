@@ -91,6 +91,8 @@ class LocalSearchGroup25:
                     mark += 1
                 if mark > max_streak :
                     max_streak = mark
+        if(max_streak == 3 ) :
+            return 9999
         return max_streak
     
     def prob(self, deltaE : int, thinking_time : float) -> float :
@@ -104,12 +106,14 @@ class LocalSearchGroup25:
         self.start_time = time()
         self.thinking_time = thinking_time 
         choosen_col, choosen_shape = (None, None)
+        choosen_board = copy.deepcopy(state.board)
         while self.thinking_time > 0 :
             next_col, next_shape = self.randomNextMove(state)
             succ_board = self.randomNextSucc(state, n_player, next_shape, next_col)
-            deltaE = self.evaluateState(succ_board, n_player) - self.evaluateState(state.board, n_player)
+            deltaE = self.evaluateState(succ_board, n_player) - self.evaluateState(choosen_board, n_player)
             if(deltaE > 0) :
                 choosen_col, choosen_shape = next_col, next_shape
+                choosen_board = succ_board
             else :
                 # print("-------------------------State Akhir----------------------------------")
                 # print(deltaE)
@@ -118,6 +122,7 @@ class LocalSearchGroup25:
                 # print(self.prob(deltaE, self.thinking_time))
                 if(self.prob(deltaE, self.thinking_time) > 0.5) :
                     choosen_col, choosen_shape = next_col, next_shape
+                    choosen_board = succ_board
             self.thinking_time -= (time() - self.start_time)
             # if(deltaE <= 0) :
             #     print(choosen_col, choosen_shape)
