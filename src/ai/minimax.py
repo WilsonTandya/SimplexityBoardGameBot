@@ -34,22 +34,10 @@ class MinimaxGroup25:
                 best_movement = movements[i][0]
             else:
                 i += 1
-        # print("Best movement",best_movement)
-        # if (found):
-        #     print("found")
-        # else:
-        #     print("not found")
+
         return best_movement
 
     def heuristic(state: State, n_player: int) -> Tuple[Tuple[str, str], int]:
-        """
-        Heuristic function to check heuristic value (objective function)
-
-        [RETURN]
-            Tuple[str, str] -> best movement
-            int             -> heuristic value
-
-        """
         # Array consists of movement possibilities with their heuristic value
         movement_heuristic = []
         copy_state = deepcopy(state)
@@ -165,6 +153,7 @@ class MinimaxGroup25:
             opponent_color = GameConstant.PLAYER1_COLOR
         return player_shape, player_color, opponent_shape, opponent_color
     
+    # Nilai:
     # Garis dengan 1 bidak berdasarkan warna atau shape pemain: +1
     # Garis dengan 2 bidak berdasarkan warna pemain: +5
     # Garis dengan 2 bidak berdasarkan shape pemain: +10
@@ -172,6 +161,13 @@ class MinimaxGroup25:
     # Garis dengan 3 bidak berdasarkan shape pemain: +50
     # Garis dengan 4 bidak berdasarkan warna pemain: +800
     # Garis dengan 4 bidak berdasarkan shape pemain: +1000
+
+    # Garis dengan 2 bidak berdasarkan warna lawan: -5
+    # Garis dengan 2 bidak berdasarkan shape lawan: -10
+    # Garis dengan 3 bidak berdasarkan warna lawan: -30
+    # Garis dengan 3 bidak berdasarkan shape lawan: -50
+    # Garis dengan 4 bidak berdasarkan warna lawan: -800
+    # Garis dengan 4 bidak berdasarkan shape lawan: -1000
     
     def horizontal(state: State, n_player: int) -> int:
         board = state.board
@@ -835,33 +831,3 @@ class MinimaxGroup25:
 
         total_score = score_1 + score_2 + score_3 + score_4
         return total_score       
-
-# TEST
-test_board = Board(6,7)
-# Misal player 1: cross red, player 2: circle blue
-n_quota = 6 * 7 / 2
-
-test_quota = [
-    {
-        ShapeConstant.CROSS: n_quota // 2,
-        ShapeConstant.CIRCLE: n_quota - (n_quota // 2),
-    },
-    {
-        ShapeConstant.CROSS: n_quota - (n_quota // 2),
-        ShapeConstant.CIRCLE: n_quota // 2,
-    },
-]
-test_players = [
-            Player(
-                ShapeConstant.CIRCLE, ColorConstant.RED, test_quota[0]
-            ),
-            Player(
-                ShapeConstant.CROSS, ColorConstant.BLUE, test_quota[1]
-            ),
-        ]
-test_state = State(test_board,test_players,1)
-
-place(test_state,1,"O",2)
-print(test_board)
-score = MinimaxGroup25.get_placement_score(test_state,0,"O",6)
-print(score)
