@@ -16,37 +16,32 @@ class MinimaxGroup25:
         pass
 
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
-        self.start_time = time()
-        self.thinking_time = thinking_time
+        self.thinking_time = time() + thinking_time
 
         # Choose random movement
         movements = MinimaxGroup25.heuristic(state, n_player)
         random_number = random.randint(0,len(movements)-1)
         best_movement = movements[random_number][0]
 
-        self.start_minimax_time = time()
-        print("time taken for random: ", self.start_minimax_time - self.start_time)
-        self.thinking_time -= (self.start_minimax_time - self.start_time)
-        print("thinking time left: ", self.thinking_time)
+        alpha = -float("inf")
+        beta = float("inf")
+        value = MinimaxGroup25.max_value(state, alpha, beta, n_player, 2)
 
-        while (self.thinking_time > 0):
-            alpha = -float("inf")
-            beta = float("inf")
-            value = MinimaxGroup25.max_value(state, alpha, beta, n_player, 3)
+        # Look for movement in movements with heuristic = value
+        found = False
+        i = 0
+        while(not found and i < len(movements)):
+            if (movements[i][1] == value):
+                found = True
+                best_movement = movements[i][0]
+            else:
+                i += 1
 
-            # Look for movement in movements with heuristic = value
-            found = False
-            i = 0
-            while(not found and i < len(movements)):
-                if (movements[i][1] == value):
-                    found = True
-                    best_movement = movements[i][0]
-                else:
-                    i += 1
+        if (found):
+            print("found")
+        else:
+            print("not found")
 
-            print("time taken for minimax: ", time() - self.start_minimax_time)
-            self.thinking_time -= (time() - self.start_minimax_time)
-            print("thinking time left: ", self.thinking_time)
         return best_movement
 
     def heuristic(state: State, n_player: int) -> Tuple[Tuple[str, str], int]:
