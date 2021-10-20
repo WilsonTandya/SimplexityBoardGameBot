@@ -45,17 +45,6 @@ class LocalSearchGroup25:
                         streak = self.checkMaxStreak(board, row, col)
                         sum -= streak
         return sum
-    """
-    def evaluateState(self, board: Board) -> int :
-        max = 0
-        for row in range(board.row):
-            for col in range(board.col):
-                if(board[row, col].shape == GameConstant.PLAYER1_SHAPE or board[row, col].color == GameConstant.PLAYER1_COLOR) :
-                    streak = self.checkMaxStreak(board, row, col)
-                    if(streak > max) :
-                        max = streak
-        return max
-    """
 
     def checkMaxStreak(self, board: Board, row: int, col: int) -> int :
         piece = board[row, col]
@@ -115,23 +104,9 @@ class LocalSearchGroup25:
                 choosen_col, choosen_shape = next_col, next_shape
                 choosen_board = succ_board
             else :
-                # print("-------------------------State Akhir----------------------------------")
-                # print(deltaE)
-                # print(choosen_col, choosen_shape)
-                # print(next_col, next_shape)
-                # print(self.prob(deltaE, self.thinking_time))
                 if(self.prob(deltaE, self.thinking_time) > 0.5) :
                     choosen_col, choosen_shape = next_col, next_shape
                     choosen_board = succ_board
             self.thinking_time -= (time() - self.start_time)
-            # if(deltaE <= 0) :
-            #     print(choosen_col, choosen_shape)
         best_movement = choosen_col, choosen_shape
         return best_movement
-
-# print("-------------------------State Awal----------------------------------")
-# print(state.board)
-# print("Nilai evaluasi : " + str(self.evaluateState(state.board)))
-# print("-------------------------State Akhir----------------------------------")
-# print(succ_board)
-# print("Nilai evaluasi : " + str(self.evaluateState(succ_board)))
