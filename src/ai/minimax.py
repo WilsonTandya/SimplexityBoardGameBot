@@ -25,7 +25,6 @@ class MinimaxGroup25:
         alpha = -float("inf")
         beta = float("inf")
         value = MinimaxGroup25.max_value(state,alpha,beta, n_player,2)
-        
         # Look for movement in movements with heuristic = value
         found = False
         i = 0
@@ -137,7 +136,6 @@ class MinimaxGroup25:
             if value <= alpha:
                 return value
             beta = min(beta, value)
-        print("value: ",value)
         return value
 
     def get_placement_score(state: State, n_player: int, shape: str, col: str) -> int:
