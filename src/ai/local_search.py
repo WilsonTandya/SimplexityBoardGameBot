@@ -24,13 +24,26 @@ class LocalSearchGroup25:
         placement = place(copy_state, n_player, choosen_shape, choosen_col)
         return copy_state.board
 
-    def evaluateState(self, board: Board) -> int :
+    def evaluateState(self, board: Board, n_player) -> int :
         sum = 0
-        for row in range(board.row):
-            for col in range(board.col):
-                if(board[row, col].shape == GameConstant.PLAYER1_SHAPE or board[row, col].color == GameConstant.PLAYER1_COLOR) :
-                    streak = self.checkMaxStreak(board, row, col)
-                    sum += streak
+        if (n_player == 0) :
+            for row in range(board.row):
+                for col in range(board.col):
+                    if(board[row, col].shape == GameConstant.PLAYER1_SHAPE or board[row, col].color == GameConstant.PLAYER1_COLOR) :
+                        streak = self.checkMaxStreak(board, row, col)
+                        sum += streak
+                    elif(board[row, col].shape == GameConstant.PLAYER2_SHAPE or board[row, col].color == GameConstant.PLAYER2_COLOR) :
+                        streak = self.checkMaxStreak(board, row, col)
+                        sum -= streak
+        else : 
+            for row in range(board.row):
+                for col in range(board.col):
+                    if(board[row, col].shape == GameConstant.PLAYER2_SHAPE or board[row, col].color == GameConstant.PLAYER2_COLOR) :
+                        streak = self.checkMaxStreak(board, row, col)
+                        sum += streak
+                    elif(board[row, col].shape == GameConstant.PLAYER1_SHAPE or board[row, col].color == GameConstant.PLAYER1_COLOR) :
+                        streak = self.checkMaxStreak(board, row, col)
+                        sum -= streak
         return sum
     """
     def evaluateState(self, board: Board) -> int :
@@ -94,7 +107,7 @@ class LocalSearchGroup25:
         while self.thinking_time > 0 :
             next_col, next_shape = self.randomNextMove(state)
             succ_board = self.randomNextSucc(state, n_player, next_shape, next_col)
-            deltaE = self.evaluateState(succ_board) - self.evaluateState(state.board)
+            deltaE = self.evaluateState(succ_board, n_player) - self.evaluateState(state.board, n_player)
             if(deltaE > 0) :
                 choosen_col, choosen_shape = next_col, next_shape
             else :
